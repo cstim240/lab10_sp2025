@@ -1,0 +1,1 @@
+/usr/bin/clang -fsanitize=thread CMakeFiles/client.dir/client.c.o -o client 

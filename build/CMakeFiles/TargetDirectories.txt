@@ -1,0 +1,4 @@
+/home/cmpt201/labs/lab10_sp2025/build/CMakeFiles/server.dir
+/home/cmpt201/labs/lab10_sp2025/build/CMakeFiles/client.dir
+/home/cmpt201/labs/lab10_sp2025/build/CMakeFiles/edit_cache.dir
+/home/cmpt201/labs/lab10_sp2025/build/CMakeFiles/rebuild_cache.dir

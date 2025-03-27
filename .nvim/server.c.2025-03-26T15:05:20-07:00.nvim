@@ -15,34 +15,11 @@ The argument is a pointer to a struct which indicates whether the client is
 running or not, its pointer to the next client/argument, and the mutex for the
 linked list containing all the clients.
 2. How are received messages stored?
-The messages are stored in the linked list called list_handle, which contains
-list_nodes.
+The messages are stored in the linked list called list_handle.
 3. What does `main()` do with the received messages?
-Checks if the server has received all the messages from the clients (via
-threads), and if it doesn't, it indicates a print error if incomplete number of
-messages were acquired (in the 'collected variable'.
 4. How are threads used in this sample code?
-Calls run_acceptor to setup the thread which connects to the client. It will
-also call run_client to accept messages which adds to the linked list of
-messages.
 */
 
-/*
- * Explain the use of non-blocking sockets in this lab.
- * How are the sockets made non-blocking?
- * The sockets are made non-blocking through the function called
- * set_non_blocking which sets a file descriptor to non-blocking mode by
- * changing its flags. The fcntl system call is a key function in this process.
- * What sockets are made non-blocking?
- * The sockets made non-blocking are the TCP client sockets. Why are these
- * sockets made non-blokcing? What purpose does it serve?
- * The sockets are made non-blocking so that the server will loop infinitely to
- * check if there's new clients wanting to connect. This allows the server to
- * avoid getting stuck waiting on socket operations that aren't ready. On the
- * sever side, it prevents the accept call from blocking indefinitely when no
- * new client is trying to connect. While the client socket's read function is
- * prevented from blocking if there's no data available yet.
- */
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -176,9 +153,6 @@ static void *run_client(void *args) {
 
       struct list_handle *list_handle = cargs->list_handle;
       // TODO: Safely use add_to_list to add new_node to the list
-      pthread_mutex_lock(cargs->list_lock);
-      { add_to_list(cargs->list_handle, new_node); }
-      pthread_mutex_unlock(cargs->list_lock);
     }
   }
 
@@ -207,17 +181,15 @@ static void *run_acceptor(void *args) {
           handle_error("accept");
         }
       } else {
+        printf("Client connected!\n");
 
         client_args[num_clients].cfd = cfd;
         client_args[num_clients].run = true;
         client_args[num_clients].list_handle = aargs->list_handle;
         client_args[num_clients].list_lock = aargs->list_lock;
+        num_clients++;
 
         // TODO: Create a new thread to handle the client
-        pthread_create(&threads[num_clients], NULL, run_client,
-                       &client_args[num_clients]);
-        num_clients++;
-        printf("Client connected! \n");
       }
     }
   }
@@ -227,10 +199,7 @@ static void *run_acceptor(void *args) {
   // Shutdown and cleanup
   for (int i = 0; i < num_clients; i++) {
     // TODO: Set flag to stop the client thread
-    client_args[i].run = false;
     // TODO: Wait for the client thread and close its socket
-    pthread_join(threads[i], NULL);
-    close(client_args[i].cfd);
   }
 
   if (close(sfd) == -1) {
@@ -261,14 +230,6 @@ int main() {
   pthread_create(&acceptor_thread, NULL, run_acceptor, &aargs);
 
   // TODO: Wait until enough messages are received
-  bool doneWaiting = false;
-  while (!doneWaiting) {
-    pthread_mutex_lock(&list_mutex);
-    if (list_handle.count >= MAX_CLIENTS * NUM_MSG_PER_CLIENT) {
-      doneWaiting = true;
-    }
-    pthread_mutex_unlock(&list_mutex);
-  }
 
   aargs.run = false;
   pthread_join(acceptor_thread, NULL);

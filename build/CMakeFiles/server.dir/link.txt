@@ -1,0 +1,1 @@
+/usr/bin/clang -fsanitize=thread CMakeFiles/server.dir/server.c.o -o server 

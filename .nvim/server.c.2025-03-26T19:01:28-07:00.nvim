@@ -27,22 +27,6 @@ also call run_client to accept messages which adds to the linked list of
 messages.
 */
 
-/*
- * Explain the use of non-blocking sockets in this lab.
- * How are the sockets made non-blocking?
- * The sockets are made non-blocking through the function called
- * set_non_blocking which sets a file descriptor to non-blocking mode by
- * changing its flags. The fcntl system call is a key function in this process.
- * What sockets are made non-blocking?
- * The sockets made non-blocking are the TCP client sockets. Why are these
- * sockets made non-blokcing? What purpose does it serve?
- * The sockets are made non-blocking so that the server will loop infinitely to
- * check if there's new clients wanting to connect. This allows the server to
- * avoid getting stuck waiting on socket operations that aren't ready. On the
- * sever side, it prevents the accept call from blocking indefinitely when no
- * new client is trying to connect. While the client socket's read function is
- * prevented from blocking if there's no data available yet.
- */
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
